@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block contenu %}
+<h2>Entreprises ({{ entreprises|length }})</h2>
+
+<form class="filtres" method="get">
+  <input type="text" name="recherche" placeholder="Rechercher une entreprise..." value="{{ filtres.recherche }}">
+  <select name="secteur">
+    <option value="">Tous les secteurs</option>
+    <option value="IA / Data" {{ 'selected' if filtres.secteur=='IA / Data' else '' }}>IA / Data</option>
+    <option value="Fintech" {{ 'selected' if filtres.secteur=='Fintech' else '' }}>Fintech</option>
+    <option value="Autre tech" {{ 'selected' if filtres.secteur=='Autre tech' else '' }}>Autre tech</option>
+  </select>
+  <button type="submit" class="btn">Filtrer</button>
+  <a href="{{ url_for('entreprises') }}" class="btn secondaire">Réinitialiser</a>
+</form>
+
+<div class="tablewrap">
+<table>
+<tr>
+  <th>Nom</th><th>Type</th><th>Secteur</th><th>Adresse</th>
+  <th>Site web</th><th>LinkedIn</th><th>Téléphone</th><th>Note</th><th>Avis</th><th>Opportunités liées</th>
+</tr>
+{% for e in entreprises %}
+<tr>
+  <td>{{ e.nom }}</td>
+  <td>{{ e.type_entreprise }}</td>
+  <td>{{ e.secteur_probable }}</td>
+  <td>{{ e.adresse }}</td>
+  <td>{% if e.site_web %}<a href="{{ e.site_web }}" target="_blank">Site</a>{% endif %}</td>
+  <td>{% if e.linkedin %}<a href="{{ e.linkedin }}" target="_blank">LinkedIn</a>{% else %}<span class="muted">—</span>{% endif %}</td>
+  <td>{{ e.telephone or '' }}</td>
+  <td>{{ e.note or '' }}</td>
+  <td>{{ e.nb_avis }}</td>
+  <td>{{ e.nb_opportunites }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+<p class="note-bas">💡 Le champ LinkedIn n'a pas été collecté automatiquement (pas de source fiable via l'API) — à compléter manuellement si besoin, directement dans la base.</p>
+{% endblock %}

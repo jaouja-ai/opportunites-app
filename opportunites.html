@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block contenu %}
+<h2>Opportunités ({{ opportunites|length }})</h2>
+
+<form class="filtres" method="get">
+  <input type="text" name="recherche" placeholder="Rechercher un titre/entreprise..." value="{{ filtres.recherche }}">
+  <input type="text" name="ville" placeholder="Ville" value="{{ filtres.ville }}">
+  <select name="statut">
+    <option value="">Tous les statuts</option>
+    {% for s in statuts %}
+    <option value="{{ s }}" {{ 'selected' if filtres.statut==s else '' }}>{{ s }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="source" placeholder="Source" value="{{ filtres.source }}">
+  <button type="submit" class="btn">Filtrer</button>
+  <a href="{{ url_for('opportunites') }}" class="btn secondaire">Réinitialiser</a>
+</form>
+
+<details class="ajout">
+  <summary>+ Ajouter une opportunité</summary>
+  <form method="post" action="{{ url_for('ajouter_opportunite') }}" class="formulaire">
+    <input type="text" name="titre_offre" placeholder="Titre de l'offre" required>
+    <input type="text" name="entreprise" placeholder="Entreprise">
+    <input type="text" name="lieu" placeholder="Lieu">
+    <input type="url" name="lien" placeholder="Lien de l'offre">
+    <input type="text" name="source" placeholder="Source (LinkedIn, Trabajo.org...)">
+    <input type="date" name="date_limite">
+    <input type="text" name="niveau_demande" placeholder="Niveau demandé">
+    <input type="text" name="competences_demandees" placeholder="Compétences demandées">
+    <select name="statut">
+      {% for s in statuts %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+    </select>
+    <select name="cv_id">
+      <option value="">-- Aucun CV --</option>
+      {% for c in cvs %}<option value="{{ c.id }}">{{ c.titre }}</option>{% endfor %}
+    </select>
+    <textarea name="remarque" placeholder="Remarque"></textarea>
+    <button type="submit" class="btn">Enregistrer</button>
+  </form>
+</details>
+
+<div class="tablewrap">
+<table>
+<tr>
+  <th>Titre</th><th>Entreprise</th><th>Lieu</th><th>Source</th><th>Statut</th>
+  <th>Date candidature</th><th>Date relance</th><th>CV</th><th>Lien</th><th>Actions</th>
+</tr>
+{% for o in opportunites %}
+{% set fid = "maj-" ~ o.id %}
+<tr>
+  <td><input form="{{ fid }}" type="text" name="titre_offre" value="{{ o.titre_offre or '' }}"></td>
+  <td><input form="{{ fid }}" type="text" name="entreprise" value="{{ o.entreprise or '' }}"></td>
+  <td><input form="{{ fid }}" type="text" name="lieu" value="{{ o.lieu or '' }}"></td>
+  <td><input form="{{ fid }}" type="text" name="source" value="{{ o.source or '' }}"></td>
+  <td>
+    <select form="{{ fid }}" name="statut">
+      {% for s in statuts %}
+      <option value="{{ s }}" {{ 'selected' if o.statut==s else '' }}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </td>
+  <td><input form="{{ fid }}" type="date" name="date_candidature" value="{{ o.date_candidature or '' }}"></td>
+  <td><input form="{{ fid }}" type="date" name="date_relance" value="{{ o.date_relance or '' }}"></td>
+  <td>
+    <select form="{{ fid }}" name="cv_id">
+      <option value="">--</option>
+      {% for c in cvs %}
+      <option value="{{ c.id }}" {{ 'selected' if o.cv_id==c.id else '' }}>{{ c.titre }}</option>
+      {% endfor %}
+    </select>
+  </td>
+  <td>{% if o.lien %}<a href="{{ o.lien }}" target="_blank">Lien</a>{% endif %}</td>
+  <td class="actions">
+    <button form="{{ fid }}" type="submit" class="btn mini" title="Enregistrer">💾</button>
+    <form method="post" action="{{ url_for('supprimer_opportunite', id_=o.id) }}"
+          onsubmit="return confirm('Supprimer cette opportunité ?');" style="display:inline">
+      <button type="submit" class="btn mini secondaire" title="Supprimer">✕</button>
+    </form>
+  </td>
+</tr>
+<!-- Formulaire externe à la ligne : évite d'imbriquer <form> dans le tableau (invalide en HTML) -->
+<form id="{{ fid }}" method="post" action="{{ url_for('modifier_opportunite', id_=o.id) }}">
+  <input type="hidden" name="lien" value="{{ o.lien or '' }}" form="{{ fid }}">
+  <input type="hidden" name="date_limite" value="{{ o.date_limite or '' }}" form="{{ fid }}">
+  <input type="hidden" name="niveau_demande" value="{{ o.niveau_demande or '' }}" form="{{ fid }}">
+  <input type="hidden" name="competences_demandees" value="{{ o.competences_demandees or '' }}" form="{{ fid }}">
+  <input type="hidden" name="pertinence" value="{{ o.pertinence or '' }}" form="{{ fid }}">
+  <input type="hidden" name="priorite" value="{{ o.priorite or '' }}" form="{{ fid }}">
+  <input type="hidden" name="reponse" value="{{ o.reponse or '' }}" form="{{ fid }}">
+  <input type="hidden" name="remarque" value="{{ o.remarque or '' }}" form="{{ fid }}">
+</form>
+{% endfor %}
+</table>
+</div>
+{% endblock %}

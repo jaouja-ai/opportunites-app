@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block contenu %}
+<h2>Mes CV ({{ cvs|length }})</h2>
+
+<details class="ajout" {{ 'open' if not cvs else '' }}>
+  <summary>+ Ajouter un CV</summary>
+  <form method="post" action="{{ url_for('ajouter_cv') }}" class="formulaire">
+    <input type="text" name="titre" placeholder="Titre (ex: CV Data Analyst v2)" required>
+    <textarea name="competences" placeholder="Compétences (ex: Python, SQL, Machine Learning...)"></textarea>
+    <textarea name="experiences" placeholder="Expériences professionnelles"></textarea>
+    <textarea name="formation" placeholder="Formation"></textarea>
+    <input type="text" name="chemin_fichier" placeholder="Chemin du fichier PDF (optionnel, ex: C:\CV\mon_cv.pdf)">
+    <button type="submit" class="btn">Enregistrer</button>
+  </form>
+</details>
+
+<div class="tablewrap">
+<table>
+<tr><th>Titre</th><th>Compétences</th><th>Expériences</th><th>Formation</th><th>Fichier</th><th>Actions</th></tr>
+{% for c in cvs %}
+<tr>
+  <td>{{ c.titre }}</td>
+  <td>{{ c.competences }}</td>
+  <td>{{ c.experiences }}</td>
+  <td>{{ c.formation }}</td>
+  <td>{{ c.chemin_fichier or '—' }}</td>
+  <td>
+    <form method="post" action="{{ url_for('supprimer_cv', id_=c.id) }}" onsubmit="return confirm('Supprimer ce CV ?');">
+      <button type="submit" class="btn mini secondaire">✕</button>
+    </form>
+  </td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
